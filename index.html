@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>문제인식 작성 도우미 (팀 활동 보고서)</title>
+<title>아이데이션 GUIDE (활동 보고서)</title>
 <style>
   :root{ --bg:#eef3f8; --card:#fff; --ink:#16202e; --sub:#586579; --line:#d6dde9; --accent:#2563eb; --soft:#e8f0ff; --good:#15803d; --warn:#b45309; }
   *{box-sizing:border-box}
@@ -109,7 +109,7 @@
 </head>
 <body>
 <header>
-  <h1>🧭 문제인식 작성 도우미</h1><span class="st" id="status">자동 저장됨</span>
+  <h1>💭 아이데이션 GUIDE</h1><span class="st" id="status">자동 저장됨</span>
   <span class="sp"></span>
   <button id="btnPlan" data-plan="open" style="background:linear-gradient(90deg,#0369a1,#7c3aed);color:#fff;border:0;font-weight:700">📑 사업계획서 미리보기</button>
   <button id="btnDir">📁 저장 폴더 지정</button>
@@ -203,7 +203,8 @@ async function saveFile(blob, name){
   status.textContent = "⬇ 다운로드 폴더에 저장됨(저장 폴더 미지정): " + name;
 }
 const who = () => d.mode === "solo" ? (d.solo || "").trim() : (d.team || "").trim();
-const fname = ext => `팀활동보고서_${(who() || d.item || "무제").replace(/[\\/:*?"<>|]/g, "")}.${ext}`;
+const rptName = () => d.mode === "solo" ? "(개인)활동보고서" : "(팀)활동보고서";
+const fname = ext => `${rptName()}_${(who() || d.item || "무제").replace(/[\\/:*?"<>|]/g, "")}.${ext}`;
 
 // ───── 자동 문장 만들기 ─────
 const num = v => { const n = parseFloat(String(v).replace(/,/g, "")); return isNaN(n) ? null : n; };
@@ -371,7 +372,7 @@ function infoHtml(){
 }
 function docHtml(){
   const rows = ITEMS.map(it => { const t = (d[it.out] || "").trim(); return `<tr><th>${it.no}. ${esc(it.title)}</th></tr><tr><td class="a ${t ? "" : "empty"}" style="height:${it.no === 2 || it.no === 6 ? 70 : 90}px">${t ? esc(t) : "(작성 전)"}</td></tr>`; }).join("");
-  return `<div class="doc" id="doc"><h3>팀 활동 보고서</h3><table>${d.mode === "solo" ? `<tr><td colspan="2"><b>참여자명 ( ${esc(d.solo) || "&nbsp;&nbsp;&nbsp;"} )</b> <span style="color:#666">· 개인</span></td></tr>` : `<tr><td style="width:45%"><b>( ${esc(d.team) || "&nbsp;&nbsp;&nbsp;"} )팀</b></td><td><b>참여자명 ( ${esc(d.members) || "&nbsp;&nbsp;&nbsp;"} )</b></td></tr>`}<tr><td colspan="2"><b>아이템(아이디어)</b>&nbsp;&nbsp;${esc(d.item) || "&nbsp;"}</td></tr></table><table style="margin-top:-1px">${rows}</table></div>`;
+  return `<div class="doc" id="doc"><h3>${rptName()}</h3><table>${d.mode === "solo" ? `<tr><td colspan="2"><b>참여자명 ( ${esc(d.solo) || "&nbsp;&nbsp;&nbsp;"} )</b> <span style="color:#666">· 개인</span></td></tr>` : `<tr><td style="width:45%"><b>( ${esc(d.team) || "&nbsp;&nbsp;&nbsp;"} )팀</b></td><td><b>참여자명 ( ${esc(d.members) || "&nbsp;&nbsp;&nbsp;"} )</b></td></tr>`}<tr><td colspan="2"><b>아이템(아이디어)</b>&nbsp;&nbsp;${esc(d.item) || "&nbsp;"}</td></tr></table><table style="margin-top:-1px">${rows}</table></div>`;
 }
 function render(){
   d.page = page;
@@ -382,7 +383,7 @@ function render(){
   html += p.items.map(cardHtml).join("");
   if(p.last){
     const miss = ITEMS.filter(it => !done(it.out));
-    html += `<div class="card nodoc"><h2><span class="n">✓</span>완성 점검 · 문서로 저장</h2><p class="tip">아래는 저장될 문서(팀 활동 보고서 양식)의 미리보기예요. 비어 있는 항목은 문서에도 비어서 나옵니다.</p>
+    html += `<div class="card nodoc"><h2><span class="n">✓</span>완성 점검 · 문서로 저장</h2><p class="tip">아래는 저장될 문서(${rptName()} 양식)의 미리보기예요. 비어 있는 항목은 문서에도 비어서 나옵니다.</p>
       <div class="chk">${ITEMS.map(it => `<div class="${done(it.out) ? "ok" : "no"}">${done(it.out) ? "✔" : "✖"} ${it.no}. ${esc(it.title.length > 22 ? it.title.slice(0, 22) + "…" : it.title)}</div>`).join("")}</div>
       <div class="final"><button class="go" data-fix="docx">📄 문서로 저장 (Word)</button><button data-fix="print">🖨 인쇄 / PDF로 저장</button></div></div>` + docHtml();
   }
@@ -451,7 +452,7 @@ async function makeDocx(){
   let rows = (d.mode === "solo" ? row(cell(para("참여자명 ( " + (d.solo || "          ") + " )   · 개인", {b: 1, sz: 22}), W, {span: 2})) : row(cell(para("( " + (d.team || "          ") + " )팀", {b: 1, sz: 22}), 4600) + cell(para("참여자명 ( " + (d.members || "          ") + " )", {b: 1, sz: 22}), W - 4600)))
     + row(cell(para("아이템(아이디어)   " + (d.item || ""), {b: 1, sz: 22}), W, {span: 2}));
   ITEMS.forEach(it => { const t = (d[it.out] || "").trim(); rows += row(cell(para(`${it.no}. ${it.title}`, {b: 1, sz: 21}), W, {span: 2, fill: "E9ECEF"})) + row(cell(para(t || " ", {sz: 20}), W, {span: 2}), it.no === 2 || it.no === 6 ? 1400 : 1900); });
-  const body = para("팀 활동 보고서", {b: 1, sz: 36, center: 1, before: 0, after: 120}) + `<w:tbl><w:tblPr><w:tblW w:w="${W}" w:type="dxa"/><w:tblBorders>${border}</w:tblBorders><w:tblLayout w:type="fixed"/></w:tblPr><w:tblGrid><w:gridCol w:w="4600"/><w:gridCol w:w="${W - 4600}"/></w:tblGrid>${rows}</w:tbl>`;
+  const body = para(rptName(), {b: 1, sz: 36, center: 1, before: 0, after: 120}) + `<w:tbl><w:tblPr><w:tblW w:w="${W}" w:type="dxa"/><w:tblBorders>${border}</w:tblBorders><w:tblLayout w:type="fixed"/></w:tblPr><w:tblGrid><w:gridCol w:w="4600"/><w:gridCol w:w="${W - 4600}"/></w:tblGrid>${rows}</w:tbl>`;
   const zip = new JSZip();
   zip.file("[Content_Types].xml", '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Override PartName="/word/document.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml"/></Types>');
   zip.file("_rels/.rels", '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="word/document.xml"/></Relationships>');
@@ -703,5 +704,189 @@ document.addEventListener("change", e => {
 window.__planSrcUi = srcUi; window.__plan = {planModel, planDocx, openPlan, addSources, setSrc: o => { SRC = o; }};
 })();
 </script>
+
+
+
+
+
+
+
+
+
+<!--SS-LINK-->
+<script>
+// ═════════ 창업시뮬 연결 모듈 (각 앱에 삽입) v1.0 · 1단계: 발견·설계 ═════════
+(function(){
+if(window.__SS) return; window.__SS = 1;
+const ME = "ideation";
+const REG = {
+  ideation: {t: "아이데이션", e: "💭", dir: "아이데이션", key: "problem-helper-v1"},
+  interview: {t: "고객인터뷰", e: "🎤", dir: "고객인터뷰", key: "interview-v1"},
+  persona: {t: "고객페르소나", e: "👤", dir: "고객페르소나", key: "persona-v1"},
+  bench: {t: "벤치마킹", e: "📚", dir: "벤치마킹", key: "bench-v1"},
+  market: {t: "시장조사·경쟁분석", e: "🔍", dir: "시장조사경쟁분석", key: "market-v1"},
+  diff: {t: "차별화", e: "💡", dir: "차별화", key: "diff-workbook-v1"},
+  lean: {t: "린캔버스", e: "🧩", dir: "린캔버스", key: "leancanvas-v1"},
+  bmc: {t: "비즈니스모델캔버스", e: "🗂️", dir: "비즈니스모델캔버스", key: "bmc-v1"},
+  bizm: {t: "비즈니스모델", e: "🏗️", dir: "비즈니스모델", key: "bizmodel-v1"},
+  diagram: {t: "BM도식화", e: "🔀", dir: "BM도식화", key: "bmdiagram-v1"},
+  revenue: {t: "수익구조", e: "💰", dir: "수익구조", key: "revenue-v1"},
+  problem: {t: "문제인식", e: "🎯", dir: "문제인식", key: "problem-pkg-v1"}
+};
+const F = (fn, over) => ({via: "file", fn, over: !!over}), O = (fn, over) => ({via: "obj", fn, over: !!over});
+const PREV4 = {persona: F("importPrev"), interview: F("importPrev"), problem: F("importPrev"), ideation: F("importPrev")};
+const IMP = {
+  problem: {ideation: F("importPrev", true), persona: F("importPrev"), interview: F("importPrev")},
+  interview: {lean: F("importCanvas"), bmc: F("importCanvas"), ideation: O("prob"), problem: O("prob")},
+  persona: {interview: O("persona"), ideation: O("persona"), problem: O("persona")},
+  lean: Object.assign({}, PREV4, {diff: O("diff"), market: O("market")}),
+  bmc: Object.assign({}, PREV4),
+  bizm: {bmc: F("importPrev"), lean: F("importPrev"), persona: F("importPrev")},
+  diagram: {bizm: O("diagram", true), bmc: O("diagram", true), lean: O("diagram", true)},
+  revenue: {diagram: F("importPrev"), bizm: F("importPrev"), bmc: F("importPrev"), lean: F("importPrev")}
+};
+const REF = {ideation: ["bench"], interview: ["bench"], problem: ["bench", "market"], lean: ["bench", "market", "diff"], bmc: ["bench", "market", "diff"], bizm: ["market", "diff"], revenue: ["market"]};
+
+const me = REG[ME];
+if(!me) return;
+const LS = {get: k => { try { return localStorage.getItem(k); } catch(e){ return null; } }, set: (k, v) => { try { localStorage.setItem(k, v); } catch(e){} }};
+const parse = s => { try { return JSON.parse(s); } catch(e){ return null; } };
+const stateOf = id => parse(LS.get(REG[id].key));
+const pubOf = id => parse(LS.get("ss-pub-" + id)) || {};
+const SKIP = new Set(["page", "version", "manual", "form", "mode", "filter", "search", "x_n", "x_find", "hint", "pos"]);
+function fillCount(x){ let n = 0; (function walk(v){ if(v == null) return; if(typeof v === "string"){ if(v.trim()) n++; } else if(Array.isArray(v)){ v.forEach(walk); } else if(typeof v === "object"){ Object.keys(v).forEach(k => { if(!SKIP.has(k)) walk(v[k]); }); } })(x); return n; }
+const hashOf = x => { const c = JSON.parse(JSON.stringify(x)); ["page", "version", "manual", "filter", "search", "hint", "pos"].forEach(k => delete c[k]); const s = JSON.stringify(c); let h = 5381; for(let i = 0; i < s.length; i++) h = ((h << 5) + h + s.charCodeAt(i)) | 0; return String(h); };
+const seenAll = () => parse(LS.get("ss-seen-v1")) || {};
+const markSeen = (src, st) => { const s = seenAll(); (s[ME] = s[ME] || {})[src] = hashOf(st); LS.set("ss-seen-v1", JSON.stringify(s)); };
+function status(src){ const st = stateOf(src); if(!st || fillCount(st) < 3) return "none"; return (seenAll()[ME] || {})[src] === hashOf(st) ? "synced" : "new"; }
+const curFill = () => (typeof d !== "undefined" && d) ? fillCount(d) : 0;
+const esc = s => String(s == null ? "" : s).replace(/[&<>"]/g, c => ({"&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;"}[c]));
+
+// ───── 새로 만든 가져오기 함수들 ─────
+const T = v => String(v == null ? "" : v).trim();
+const setIf = (k, v) => { v = T(v); if(v && !T(d[k])){ d[k] = v; return 1; } return 0; };
+const common = x => { let n = 0; ["item", "team", "members", "solo"].forEach(k => { n += 0; setIf(k, x[k]); }); return n; };
+const redo = (...ks) => { d.manual = d.manual || {}; ks.forEach(k => { d.manual[k] = false; }); try { if(typeof ensure === "function") ensure(); if(typeof allRecompose === "function") allRecompose(); render(); } catch(e){ try { render(); } catch(e2){} } };
+const SSIMP = {
+  prob(x){ let n = 0; const who = x.c_who || x.o_cust; n += setIf("h_who", who); n += setIf("t_crit", who); n += setIf("h_prob", x.sp1 || x.o_prob || x.e1); common(x); redo("i_text", "q_text"); return n ? `고객·문제 가설 ${n}칸을 채웠어요 (비어 있던 칸만)` : "가져올 새 내용이 없어요"; },
+  persona(x){
+    let n = 0;
+    if(x.form === "interview"){
+      n += setIf("p_job", x.t_crit || x.h_who);
+      const log = (x.log || []).filter(r => r && (T(r.prob) || T(r.alt)));
+      [...new Set(log.map(r => T(r.prob)).filter(Boolean))].slice(0, 3).forEach((p, i) => { if(d.pn[i] && !T(d.pn[i].pain)){ d.pn[i].pain = p; n++; } });
+      const cnt = {}; log.forEach(r => { const a = T(r.alt); if(a) cnt[a] = (cnt[a] || 0) + 1; }); const top = Object.entries(cnt).sort((a, b) => b[1] - a[1])[0];
+      if(top) n += setIf("b_alt", top[0]); n += setIf("g1", x.c_need); n += setIf("m_quote", x.c_quote);
+    } else {
+      n += setIf("p_job", x.c_who || x.o_cust);
+      [x.sp1, x.sp2, x.sp3].forEach((p, i) => { p = T(p); if(p && d.pn[i] && !T(d.pn[i].pain)){ d.pn[i].pain = p; n++; } });
+      n += setIf("b_alt", x.e1);
+    }
+    common(x); redo("p_text", "day_text", "g_text", "pn_text", "b_text", "m_text"); return n ? `프로필·불편·행동 ${n}칸을 채웠어요 (비어 있던 칸만)` : "가져올 새 내용이 없어요";
+  },
+  diff(x){
+    const cards = (pubOf("diff").cards || []).slice(0, 4); if(!cards.length) return "차별화에서 고른 카드가 아직 없어요";
+    let n = 0; cards.forEach(c => { if(!d.c.unfair.some(z => z.l === c.n)){ d.c.unfair.push({l: c.n, det: c.note || ""}); n++; } });
+    common(x); redo("unfair"); return n ? `경쟁 우위 카드 ${n}장을 가져왔어요` : "이미 같은 카드가 들어 있어요";
+  },
+  market(x){
+    const p = pubOf("market"), comp = (p.comp || []).filter(Boolean); let n = 0;
+    if(comp.length && d.a && d.a.problem && !T(d.a.problem[3])){ d.a.problem[3] = comp.slice(0, 4).join(", "); n++; }
+    common(x); redo("problem"); return n ? "문제의 ‘기존 대안’ 칸에 경쟁사를 가져왔어요" : "가져올 새 내용이 없어요";
+  },
+  diagram(x){
+    const first = a => (Array.isArray(a) && a[0]) ? a[0] : null, lab = e => e ? (T(e.l) + (T(e.det) ? " " + T(e.det) : "")) : "";
+    let N;
+    if(x.form === "bizmodel") N = {us: x.item, cust: x.cust1, offer: lab(first(x.ofc)) || x.offer, rev: lab(first(x.rev)), partners: (x.ptn || []).filter(p => T(p.name)).map(p => ({name: p.name, give: p.give, pay: p.pay}))};
+    else N = {us: x.item, cust: (x.a && x.a.cust && x.a.cust[0]) || x.x_cust, offer: lab(first(x.c && x.c.solution)), rev: lab(first(x.c && x.c.revenue)), partners: ((x.c && x.c.partners) || []).slice(0, 3).map(e => ({name: T(e.det).split(" — ")[0] || e.l, give: e.l, pay: ""}))};
+    dbg("diagram N", JSON.stringify(N));
+    const short = (s, n) => { s = T(s).replace(/^(핵심 고객|얼리어답터):\s*/, ""); return s.length > n ? s.slice(0, n) + "…" : s; };
+    const us = {n: short(N.us, 14) || "우리 서비스", s: "", c: 0, us: true}, cu = {n: short(N.cust, 16) || "고객", s: "", c: 1};
+    const pts = N.partners.slice(0, 4).map(p => ({n: short(p.name, 14), s: short(p.give, 16), c: 2}));
+    const offer = short(N.offer, 18) || "제품·서비스 제공", rev = short(N.rev, 18) || "대금";
+    let type, pp = [], rel = [];
+    if(!pts.length){ type = "t1"; pp = [us, cu]; rel = [{f: 0, t: 1, l: offer, k: "prod"}, {f: 1, t: 0, l: rev, k: "money"}]; }
+    else if(pts.length === 1){ type = "t2"; pp = [cu, us, pts[0]]; rel = [{f: 1, t: 0, l: offer, k: "prod"}, {f: 0, t: 1, l: rev, k: "money"}, {f: 2, t: 1, l: short(N.partners[0].give, 18) || "상품·서비스 공급", k: "prod"}, {f: 1, t: 2, l: short(N.partners[0].pay, 14) || "대가 지급", k: "money"}]; }
+    else { type = "hub"; pp = [us, cu, ...pts]; rel = [{f: 0, t: 1, l: offer, k: "prod"}, {f: 1, t: 0, l: rev, k: "money"}]; pts.forEach((p, i) => { rel.push({f: i + 2, t: 0, l: short(N.partners[i].give, 18) || "공급", k: "prod"}, {f: 0, t: i + 2, l: short(N.partners[i].pay, 14) || "대가 지급", k: "money"}); }); }
+    dbg("diagram built", type, pp.length, rel.length); d.type = type; d.pp = pp; d.rel = rel.slice(0, 12); d.pos = {}; common(x); dbg("diagram redo"); redo("t_text", "p_text", "r_text", "e_text"); dbg("diagram redone");
+    return `참여자 ${pp.length}곳·관계 ${d.rel.length}개로 도식 초안을 만들었어요 (그림을 보고 고쳐 주세요)`;
+  }
+};
+window.SSIMP = SSIMP;
+
+// ───── 가져오기 실행 ─────
+const DBG = /ss-dbg/.test(location.hash); const dbg = (...a) => { if(DBG) console.log("SSDBG", ...a); };
+function runImp(src, done, auto){ dbg("runImp", src);
+  const spec = (IMP[ME] || {})[src]; const st = stateOf(src);
+  if(!spec || !st) return done && done("앞 단계 내용이 아직 없어요");
+  if(spec.over && curFill() > 4 && auto) return done && done("이미 작성한 내용이 있어 건너뛰었어요 (직접 가져오기를 눌러 주세요)");
+  if(spec.over && curFill() > 4 && !confirm("이미 작성한 내용 중 같은 칸은 바뀔 수 있어요.\n계속할까요?")) return done && done("취소했어요");
+  const oa = window.alert, msgs = []; window.alert = m => { msgs.push(String(m)); };
+  const fin = res => { dbg("fin", src, String(res || msgs[0]).slice(0, 60)); window.alert = oa; const bad = /아닙니다|올바른|못했|아직 없어요/.test(String(res || msgs[0] || "")); if(!bad) markSeen(src, st); const first = String(res || msgs[0] || "가져왔어요").split("\n").filter(Boolean).slice(0, 2).join(" · "); done && done(first.slice(0, 160)); try { panelRefresh(); } catch(e){} };
+  try {
+    if(spec.via === "obj"){ const r = SSIMP[spec.fn](st, src); fin(r); }
+    else { const fn = window[spec.fn]; if(typeof fn !== "function"){ window.alert = oa; return done && done("이 화면에서는 가져오기를 쓸 수 없어요"); } fn(new File([JSON.stringify(st)], src + ".json", {type: "application/json"})); let tries = 0; const wait = () => { if(msgs.length || ++tries > 40) return fin(); setTimeout(wait, 120); }; setTimeout(wait, 150); }
+  } catch(e){ window.alert = oa; done && done("가져오지 못했어요 (" + (e && e.message || e) + ")"); }
+}
+function coreFill(){
+  if(typeof d === "undefined" || !d) return false; let ch = false;
+  ["item", "team", "members", "solo"].forEach(k => {
+    if(k in d && !T(d[k])){ const core = parse(LS.get("ss-core-v1")) || {}; if(T(core[k])){ d[k] = T(core[k]); ch = true; return; } for(const id of Object.keys(REG)){ if(id === ME) continue; const s = stateOf(id); if(s && T(s[k])){ d[k] = T(s[k]); ch = true; break; } } }
+  });
+  if(ch){ try { render(); persist(); } catch(e){} } return ch;
+}
+function autoRun(){
+  const q = (location.hash.match(/ss-pull=(\w+)/) || [])[1];
+  if(q && (IMP[ME] || {})[q]){ history.replaceState(null, "", location.pathname + location.search); runImp(q, m => toast("🔗 " + REG[q].t + " → " + m)); return; }
+  if(LS.get("ss-auto-v1") === "off" || curFill() > 4) return;
+  const todo = Object.keys(IMP[ME] || {}).filter(s => status(s) === "new"); if(!todo.length) return;
+  let i = 0, got = 0; const next = () => { if(i >= todo.length){ if(got) toast("🔗 앞 단계 " + got + "곳에서 내용을 가져왔어요 (빈 칸만 채움)"); return; } const s = todo[i++]; runImp(s, m => { if(!/없어요|취소|못했|건너뛰/.test(m)) got++; setTimeout(next, 150); }, true); }; next();
+}
+
+// ───── 화면 ─────
+const css = `#ss-pill{position:fixed;left:12px;bottom:82px;z-index:99990;font:700 13px 'Malgun Gothic',sans-serif;background:#16294a;color:#fff;border:0;border-radius:999px;padding:9px 14px;cursor:pointer;box-shadow:0 3px 10px rgba(0,0,0,.28)}#ss-pill i{font-style:normal;background:#ef4444;border-radius:999px;padding:0 7px;margin-left:6px;font-size:12px}#ss-panel{position:fixed;left:12px;bottom:126px;z-index:99991;width:min(380px,calc(100vw - 24px));max-height:70vh;overflow:auto;background:#fff;color:#1f2937;border:1.5px solid #16294a;border-radius:14px;padding:12px 14px;box-shadow:0 8px 28px rgba(0,0,0,.3);font:13px/1.5 'Malgun Gothic',sans-serif;display:none}#ss-panel h4{margin:10px 0 4px;font-size:13px;color:#16294a}#ss-panel .hd{display:flex;justify-content:space-between;align-items:center;font-weight:800;font-size:14px}#ss-panel a{color:#2563eb;text-decoration:none}#ss-panel a:hover{text-decoration:underline}#ss-panel .row{display:flex;align-items:center;gap:6px;padding:5px 0;border-bottom:1px solid #eef2f7}#ss-panel .row b{flex:1}#ss-panel .st{font-size:11.5px;border-radius:999px;padding:1px 8px}#ss-panel .st.none{background:#f1f5f9;color:#64748b}#ss-panel .st.new{background:#fee2e2;color:#b91c1c}#ss-panel .st.synced{background:#dcfce7;color:#166534}#ss-panel button{font:inherit;font-size:12px;border:1px solid #16294a;background:#fff;color:#16294a;border-radius:8px;padding:2px 9px;cursor:pointer}#ss-panel button.go{background:#16294a;color:#fff}#ss-panel .msg{font-size:12px;color:#166534;background:#f0fdf4;border-radius:8px;padding:3px 8px;margin:2px 0}#ss-panel .ref{font-size:12px;color:#334155;padding:2px 0}#ss-panel .sm{font-size:11.5px;color:#64748b}#ss-toast{position:fixed;left:12px;bottom:130px;z-index:99992;max-width:min(420px,calc(100vw - 24px));background:#166534;color:#fff;border-radius:10px;padding:8px 12px;font:600 13px 'Malgun Gothic',sans-serif;box-shadow:0 4px 14px rgba(0,0,0,.25);display:none}@media print{#ss-pill,#ss-panel,#ss-toast{display:none!important}}`;
+const st = document.createElement("style"); st.textContent = css; document.head.appendChild(st);
+const pill = document.createElement("button"); pill.id = "ss-pill"; pill.type = "button"; document.body.appendChild(pill);
+const panel = document.createElement("div"); panel.id = "ss-panel"; document.body.appendChild(panel);
+const tbox = document.createElement("div"); tbox.id = "ss-toast"; document.body.appendChild(tbox);
+let tt; function toast(m){ tbox.textContent = m; tbox.style.display = "block"; clearTimeout(tt); tt = setTimeout(() => { tbox.style.display = "none"; }, 5000); }
+const results = {};
+function nextOf(){ return Object.keys(IMP).filter(k => IMP[k][ME]); }
+function panelRefresh(){
+  const ups = Object.keys(IMP[ME] || {}), nw = ups.filter(s => status(s) === "new").length;
+  pill.innerHTML = "🔗 창업시뮬" + (nw ? `<i>${nw}</i>` : ""); pill.title = "앞뒤 단계 연결";
+  const lab = {none: "아직 없음", new: "🆕 새 내용", synced: "✔ 가져옴"};
+  let h = `<div class="hd"><span>${me.e} ${me.t}</span><a href="../창업시뮬/index.html">🧭 허브 열기</a></div><div class="sm">같은 브라우저에서 앞 단계 앱에 쓴 내용이 자동으로 공유돼요. 이미 쓴 칸은 지우지 않고, 빈 칸만 채워요.</div>`;
+  if(ups.length){ h += `<h4>⬅ 앞 단계에서 가져오기</h4>` + ups.map(s => { const sv = status(s); return `<div class="row"><b>${REG[s].e} ${REG[s].t}</b><span class="st ${sv}">${lab[sv]}</span>${sv !== "none" ? `<button class="go" data-ss-pull="${s}">가져오기</button>` : `<a href="../${REG[s].dir}/index.html">열기</a>`}</div>${results[s] ? `<div class="msg">${esc(results[s])}</div>` : ""}`; }).join(""); }
+  else h += `<h4>⬅ 앞 단계</h4><div class="sm">이 앱이 연결 흐름의 시작이에요.</div>`;
+  const nx = nextOf(); if(nx.length) h += `<h4>➡ 이 내용이 이어지는 곳</h4>` + nx.map(k => `<div class="row"><b>${REG[k].e} ${REG[k].t}</b><a href="../${REG[k].dir}/index.html#ss-pull=${ME}">이어서 쓰기 →</a></div>`).join("");
+  const refs = (REF[ME] || []).map(k => ({k, p: pubOf(k)})).filter(o => (o.p.cards || []).length);
+  if(refs.length) h += `<h4>📎 참고 — 다른 모듈에서 고른 카드</h4>` + refs.map(o => `<div class="ref"><b>${REG[o.k].e} ${REG[o.k].t}</b> : ${o.p.cards.map(c => esc(c.n)).join(", ")}</div>`).join("");
+  h += `<h4>⚙ 설정</h4><label class="sm"><input type="checkbox" id="ss-auto" ${LS.get("ss-auto-v1") === "off" ? "" : "checked"}> 처음 열 때 앞 단계 내용을 자동으로 가져오기 (비어 있는 앱만)</label><div class="sm" style="margin-top:4px"><a href="./${me.dir}_사전교육.pptx">📑 이 모듈 사전교육 PPT</a></div>`;
+  panel.innerHTML = h;
+}
+pill.onclick = () => { panelRefresh(); panel.style.display = panel.style.display === "block" ? "none" : "block"; };
+panel.addEventListener("click", e => { const b = e.target.closest("[data-ss-pull]"); if(!b) return; const s = b.dataset.ssPull; b.disabled = true; b.textContent = "가져오는 중…"; runImp(s, m => { results[s] = m; panelRefresh(); }); });
+panel.addEventListener("change", e => { if(e.target.id === "ss-auto") LS.set("ss-auto-v1", e.target.checked ? "on" : "off"); });
+document.addEventListener("visibilitychange", () => { if(!document.hidden) panelRefresh(); });
+window.addEventListener("storage", () => panelRefresh());
+
+// ───── 다른 앱이 참고하도록 선택 카드 공유 ─────
+const galleryCards = () => (d.rows || []).filter(r => r.id !== null && r.id !== undefined && CARDS[r.id]).map(r => { const c = CARDS[r.id]; const note = Object.keys(r).filter(k => k !== "id" && typeof r[k] === "string" && r[k].trim()).map(k => r[k].trim())[0] || ""; return {n: c.n, cat: c.cat, note}; });
+const PUB = {
+  bench: () => ({cards: galleryCards()}), diff: () => ({cards: galleryCards()}),
+  market: () => ({cards: galleryCards(), comp: (d.cp || []).slice(1).map(p => p && p.name).filter(Boolean), tam: d.tam, samp: d.samp, somp: d.somp, def: d.def}),
+  revenue: () => ({cards: (d.rows || []).filter(r => r.id).map(r => ({n: CM[r.id].name, cat: CM[r.id].cat, note: ""}))})
+};
+function pubNow(){ const f = PUB[ME]; if(!f) return; try { LS.set("ss-pub-" + ME, JSON.stringify(f())); } catch(e){} }
+const _si = Storage.prototype.setItem; Storage.prototype.setItem = function(k, v){ _si.apply(this, arguments); if(k === me.key) pubNow(); };
+
+setTimeout(() => { try { pubNow(); coreFill(); panelRefresh(); autoRun(); } catch(e){ console.warn("ss", e); } }, 400);
+if(/ss-example/.test(location.hash)) setTimeout(() => { const b = document.querySelector('[data-fix="example"]'); if(b) b.click(); }, 900);
+if(/ss-test/.test(location.search + location.hash)) setTimeout(() => { const r = document.createElement("pre"); r.id = "RESULT"; r.textContent = JSON.stringify({d: typeof d !== "undefined" ? d : null, panel: panel.innerText, toast: tbox.textContent}); document.body.appendChild(r); }, 4500);
+})();
+
+</script>
+<!--/SS-LINK-->
 </body>
 </html>
